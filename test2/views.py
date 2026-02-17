@@ -1,3 +1,5 @@
+from itertools import product
+
 from django.shortcuts import render
 from rest_framework import serializers
 
@@ -18,26 +20,21 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = Productserializers
 
+class ProductListView(APIView):
+
+    def get(self,request):
+        product=Product.objects.all()
+        serializer=Productserializers(product,many=True)
+        data={
+            'status':status.HTTP_200_OK,
+            'message':'Products',
+            'data':serializer.data
+        }
+        return Response(data)
 
 
 
-# class ProductViewSet(viewsets.ModelViewSet):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
 
-# class ProductListView(APIView):
-#     def get(self, request):
-#         product = Product.objects.all()
-#         serializer = ProductSerializers(product, many=True)
-#         data = {
-#             'status': status.HTTP_200_OK,
-#             'message': 'Products',
-#             "data": serializer.data
-#         }
-#
-#         return Response(data)
-#
-#
 # class ProductCreateView(APIView):
 #     def post(self, request):
 #         serializer = ProductSerializer(data=request.data)
