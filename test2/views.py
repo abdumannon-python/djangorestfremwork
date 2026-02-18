@@ -1,20 +1,10 @@
-from itertools import product
-
-from django.shortcuts import render
-from rest_framework import serializers
-
-from django.shortcuts import render
+from rest_framework.generics import RetrieveAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from .serializers import Productserializers
-from rest_framework.exceptions import ValidationError
 from .models import Product
-from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, \
-    RetrieveAPIView, UpdateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -33,38 +23,30 @@ class ProductListView(APIView):
         return Response(data)
 
 
+class ProductCreateView(APIView):
+    def post(self,request):
+        serializer=Productserializers(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            data={
+                'status':status.HTTP_201_CREATED,
+                'message':'Product yaratildi',
+                'data':serializer.data
+            }
 
+            return Response(data)
 
-# class ProductCreateView(APIView):
-#     def post(self, request):
-#         serializer = ProductSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             data = {
-#                 'status': status.HTTP_201_CREATED,
-#                 'message': 'Product',
-#                 "data": serializer.data
-#             }
-#             return Response(data)
-#
-#         data = {
-#             'status': status.HTTP_400_BAD_REQUEST,
-#             'message': 'Eror',
-#             "desc": serializer.errors
-#         }
-#
-#         return Response(data)
-#
-#
-# class ProductDetailView(RetrieveUpdateDestroyAPIView):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-#
-#
-# class ProductDeleteView(DestroyAPIView):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-#
+        data = {
+            'status': status.HTTP_400_BAD_REQUEST,
+            'message': 'Error',
+            'data': serializer.data
+        }
+        return Response(data)
+
+class ProductDetailView(RetrieveUpdateDestroyAPIView):
+    queryset=Product.objects.all()
+    serializer_class = Productserializers
+
 #
 # class ProductUpdateView(UpdateAPIView):
 #     def put(self, request, pk):
